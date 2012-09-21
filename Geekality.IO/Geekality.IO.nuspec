@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Torleif Berger</authors>
+    <owners>Torleif Berger</owners>
+    <licenseUrl>https://bitbucket.org/svish/geekality.io/src/tip/README.md</licenseUrl>
+    <projectUrl>https://bitbucket.org/svish/geekality.io</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <tags>io</tags>
+  </metadata>
+</package>
