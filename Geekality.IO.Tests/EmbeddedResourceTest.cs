@@ -11,23 +11,25 @@ namespace Geekality.IO
     [TestFixture]
     class EmbeddedResourceTest
     {
+        public static readonly string CONTENTS = "Foobar æøå";
+
         [Test]
         public void Get_FromCallingAssembly()
         {
             using (var s = new StreamReader(EmbeddedResource.Get("Geekality.IO.EmbeddedResourceTest.txt")))
-                Assert.AreEqual("Foobar", s.ReadToEnd());
+                Assert.AreEqual(CONTENTS, s.ReadToEnd());
         }
         [Test]
         public void Get_FromTypeAssembly()
         {
             using (var s = new StreamReader(EmbeddedResource.Get<EmbeddedResourceTest>("Geekality.IO.EmbeddedResourceTest.txt", false)))
-                Assert.AreEqual("Foobar", s.ReadToEnd());
+                Assert.AreEqual(CONTENTS, s.ReadToEnd());
         }
         [Test]
         public void Get_FromTypeAssemblyUsingNamespace()
         {
             using (var s = new StreamReader(EmbeddedResource.Get<EmbeddedResourceTest>("EmbeddedResourceTest.txt", true)))
-                Assert.AreEqual("Foobar", s.ReadToEnd());
+                Assert.AreEqual(CONTENTS, s.ReadToEnd());
         }
     }
 }
