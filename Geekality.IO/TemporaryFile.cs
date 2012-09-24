@@ -37,6 +37,16 @@ namespace Geekality.IO
         }
 
         /// <summary>
+        /// Creates and wraps a new temporary file with the given stream copied to it.
+        /// </summary>
+        /// <param name="initialFileContents"></param>
+        public TemporaryFile(Stream initialFileContents) : this()
+        {
+            using (var file = new FileStream(this, FileMode.Open))
+                initialFileContents.CopyTo(file);
+        }
+
+        /// <summary>
         /// Implicit conversion to <see cref="FileInfo"/> for easy use as method parameter, etc.
         /// <example>
         /// Example:

@@ -8,13 +8,72 @@ namespace Geekality.IO
     class TemporaryFileTest
     {
         [Test]
-        public void FileInfo_ReturnsWrappedFileInfo()
+        public void Construct_Default_EmptyFileIsCreated()
         {
-            var file = new FileInfo(Path.GetTempFileName());
-            using (var temporaryFile = new TemporaryFile(file))
+            using (var file = new TemporaryFile())
             {
-                Assert.AreSame(file, temporaryFile.FileInfo);
+                Assert.True(file.FileInfo.Exists, "File was not created.");
+                Assert.AreEqual(0, file.FileInfo.Length, "File was not empty.");
             }
+        }
+
+        [Test]
+        public void Constructor_GivenStream_FileIsInitializedWithStreamContents()
+        {
+            using (var s = EmbeddedResource.Get<TemporaryFileTest>("EmbeddedResourceTest.txt"))
+            using (var file = new TemporaryFile(s))
+                Assert.AreEqual("Foobar", File.ReadAllText(file));
+        }
+
+        [Test]
+        public void Constructor_GivenFileInfo_UsesGivenFileInfo()
+        {
+            var fileInfo = new FileInfo(Path.GetTempFileName());
+
+            using (var temporaryFile = new TemporaryFile(fileInfo))
+                Assert.AreSame(fileInfo, temporaryFile.FileInfo);
+        }
+
+        [Test]
+        public void Dispose_CreatedFile_FileIsDeleted()
+        {
+            var file = new TemporaryFile();
+
+            FileInfo fileInfo = file;
+            Assume.That(fileInfo.Exists, "File should've been created.");
+
+            file.Dispose();
+            fileInfo.Refresh();
+            Assert.False(fileInfo.Exists, "File was not deleted.");
+        }
+
+        [Test]
+        public void Dispose_NonExistingFile_DoesNotCrash()
+        {
+            using (var file = new TemporaryFile())
+                file.FileInfo.Delete();
+        }
+
+
+
+        [Test]
+        public void Finalizer_FileIsDeleted()
+        {
+            // Create file
+            var file = new TemporaryFile();
+
+            // Store fileinfo
+            FileInfo fileInfo = file;
+            Assume.That(fileInfo.Exists, "File should exist at this point.");
+
+            // Drop reference and do GC
+            file = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            // File should be gone now
+            fileInfo.Refresh();
+            Assert.False(fileInfo.Exists, "File should not exist anymore");
         }
 
         [Test]
@@ -45,7 +104,7 @@ namespace Geekality.IO
             var file = new FileInfo(Path.GetTempFileName());
             Assume.That(file.Exists);
 
-            using ((TemporaryFile) file)
+            using ((TemporaryFile)file)
             {
                 file.Refresh();
                 Assert.True(file.Exists);
@@ -53,39 +112,6 @@ namespace Geekality.IO
 
             file.Refresh();
             Assert.False(file.Exists);
-        }
-
-        [Test]
-        public void ConstructorAndDispose_FileIsCreatedAndDeleted()
-        {
-            var file = new TemporaryFile();
-
-            FileInfo fileInfo = file;
-            Assert.True(fileInfo.Exists);
-
-            file.Dispose();
-            fileInfo.Refresh();
-            Assert.False(fileInfo.Exists);
-        }
-
-        [Test]
-        public void Finalizer_FileIsDeleted()
-        {
-            // Create file
-            var file = new TemporaryFile();
-
-            // Store fileinfo
-            FileInfo fileInfo = file;
-            Assume.That(fileInfo.Exists, "File should exist at this point.");
-
-            // Drop reference and do GC
-            file = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-
-            // File should be gone now
-            fileInfo.Refresh();
-            Assert.False(fileInfo.Exists, "File should not exist anymore");
         }
     }
 }
