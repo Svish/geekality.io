@@ -18,20 +18,28 @@ namespace Geekality.IO
         }
 
         [Test]
-        public void Constructor_GivenStream_FileIsInitializedWithStreamContents()
-        {
-            using (var s = EmbeddedResource.Get<TemporaryFileTest>("EmbeddedResourceTest.txt"))
-            using (var file = new TemporaryFile(s))
-                Assert.AreEqual("Foobar", File.ReadAllText(file));
-        }
-
-        [Test]
-        public void Constructor_GivenFileInfo_UsesGivenFileInfo()
+        public void Constructor_FileInfo_UsesGivenFileInfo()
         {
             var fileInfo = new FileInfo(Path.GetTempFileName());
 
             using (var temporaryFile = new TemporaryFile(fileInfo))
                 Assert.AreSame(fileInfo, temporaryFile.FileInfo);
+        }
+
+        [Test]
+        public void Constructor_Stream_FileIsInitializedWithStreamContents()
+        {
+            using (var s = EmbeddedResource.Get<TemporaryFileTest>("EmbeddedResourceTest.txt"))
+            using (var file = new TemporaryFile(s))
+                Assert.AreEqual(EmbeddedResourceTest.CONTENTS, File.ReadAllText(file));
+        }
+
+        [Test]
+        public void Constructor_Stream_StreamIsClosed()
+        {
+            using (var s = EmbeddedResource.Get<TemporaryFileTest>("EmbeddedResourceTest.txt"))
+            using (var file = new TemporaryFile(s))
+                Assert.False(s.CanRead, "Stream should be closed.");
         }
 
         [Test]

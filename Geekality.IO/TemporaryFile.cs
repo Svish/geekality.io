@@ -39,11 +39,15 @@ namespace Geekality.IO
         /// <summary>
         /// Creates and wraps a new temporary file with the given stream copied to it.
         /// </summary>
-        /// <param name="initialFileContents"></param>
-        public TemporaryFile(Stream initialFileContents) : this()
+        /// <param name="contents">Conents which will be copied to the temporary file after creation.</param>
+        /// <param name="closeStream">If true (default), the given stream will be disposed after copy.</param>
+        public TemporaryFile(Stream contents, bool disposeStream = true) : this()
         {
-            using (var file = new FileStream(this, FileMode.Open))
-                initialFileContents.CopyTo(file);
+            using (var file = new FileStream(this, FileMode.OpenOrCreate))
+                contents.CopyTo(file);
+
+            if (disposeStream)
+                contents.Dispose();
         }
 
         /// <summary>
